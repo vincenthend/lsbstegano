@@ -89,3 +89,15 @@ body {
 	margin-top:40px;
 	margin-bottom:40px;
 }
+
+.section-image{
+	width:100%;
+	left:0px;
+	right:0px;
+}
+
+.img-sub{
+	text-align:center;
+	color:#909090;
+	font-size:80%;
+}
