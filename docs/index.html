@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Steganography</title>
+<link rel="stylesheet" href="styles/idea.css">
+<link rel="stylesheet" href="style.css">
+<script src="highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body id="top">
+<div class="header-bar">
+  <nav class="nav-content">
+    <a href="#top"><li class="nav-item" id="article">Article</li></a>
+    <a href="https://github.com/vincenthend/lsbstegano"><li class="nav-item">Sourcecode</li></a>
+  </nav>
+</div>
+<div class="container">
+  <div class="article-header">
+    <div class="article-title">Steganography</div>
+    <div class="article-subtitle">where a picture has another message</div>
+  </div>
+  <div class="content">
+    <div class="section">
+      <h1>What is Steganography</h1>
+      <p> Steganografi berasal dari kata bahasa Yunani <em>steganos</em> yang berarti tersembunyi dan <em>graphein</em> yang berarti tulisan</p>
+      <p>Secara keseluruhan Steganografi adalah teknik menyembunyikan pesan sehingga tidak ada orang yang curiga akan keberadaan pesan tersebut</p>
+      <p>Pada steganografi, media pembawa pesan disebut sebagai <strong>cover-object</strong>, sedangkan pesan yang disembunyikan disebut <strong>embedded message</strong>. Hasil dari penyembunyian pesan tersebut disebut sebagai <strong>stego-object</strong>. </p>
+    </div>
+    <div class="section">
+      <h1>Digital Steganography</h1>
+      <p>Steganografi sudah berkembang dari jaman dulu hingga sekarang. Pada jaman dulu, steganografi memanfaatkan media fisik seperti gambar dan tulisan fisik. Namun seiring berkembangnya jaman, steganografi berkembang hingga ke media digital.</p>
+      <p>Jika pada jaman dahulu, stego-object berbentuk fisik, maka pada era digital saat ini, stego-object berbentuk digital seperti gambar, audio, video, dll.</p>
+      <p>Salah satu metode steganografi pada gambar adalah dengan metode LSB. Metode LSB memanfaatkan bit pada satu pixel yang dimiliki gambar. Pada gambar grayscale, terdapat  8 bit warna, pada gambar berwarna terdapat 24 bit warna.</p>
+      <p>Pada gambar grayscale, 8 bit warna tersebut menandakan keabuan gambar. Pada gambar berwarna, 24 bit tersebut terbagi menjadi 3 channel, masing-masing 8 bit, yaitu red, green, dan blue.<br>
+        8 bit tersebut dapat direpresentasikan dengan angka 1 dan 0, seperti pada contoh di bawah</p>
+      <blockquote>10110010</blockquote>
+      <p>Bit paling kanan disebut least significant bit(LSB) karena bit tersebut hanya sedikit mempengaruhi pergeseran nilai dari warna. Akibatnya, angka tersebut dapat dimodifikasi untuk menyimpan pesan yang disembunyikan.</p>
+    </div>
+    <div class="section">
+      <h1>Imageception</h1>
+      <p>Melalui metode LSB, kita dapat menyembunyikan informasi berupa gambar di dalam gambar. Pada contoh di bawah, akan ditunjukkan salah satu cara menyembunyikan gambar hitam putih pada gambar berwarna.</p>
+      <p>Secara singkat, proses menyembunyikan gambar hitam putih pada gambar berwarna dapat diringkas menjadi poin berikut
+      <ol>
+        <li>Mengambil warna pixel gambar berwarna (carrier file)</li>
+        <li>Mengambil warna pixel gambar hitam-putih (embedded message)</li>
+        <li>Mengubah LSB dari gambar berwarna sesuai dengan warna dari gambar hitam-putih</li>
+        <li>Menyimpan gambar berwarna kembali</li>
+      </ol>
+      </p>
+      <h2>1. Mengambil warna pixel gambar berwarna</h2>
+      <p>Untuk mendapatkan nilai warna setiap pixel pada gambar, kita dapat menggunakan kode program Java di bawah untuk memperoleh nilai RGB pada sebuah gambar.</p>
+      <p>Kita asumsikan bahwa gambar yang digunakan tidak menggunakan transparency/alpha seperti yang terdapat pada gambar berformat .png
+      <pre><code class="java">    public static byte[][][] readImage(BufferedImage img){
+      byte[][][] pixel = new byte[img.getWidth()][img.getHeight()][3];
+      for(int i = 0; i &lt; img.getWidth(); i++){
+        for(int j = 0; j &lt; img.getHeight(); j++){
+          int color = img.getRGB(i,j);
+          pixel[i][j][0] = (byte)(color &gt;&gt; 16);
+          pixel[i][j][1] = (byte)(color &gt;&gt; 8);
+          pixel[i][j][2] = (byte)color;
+        }
+      }
+      return pixel;
+    }
+      </code></pre>
+      </p>
+      <h2>2. Mengambil warna pixel gambar hitam-putih</h2>
+      <p>Setelah mendapatkan warna setiap pixel pada gambar berwarna, kita memerlukan pesan yang akan dimasukkan dalam gambar berwarna tadi. Untuk mempermudah proses, kita akan menggunakan gambar yang memiliki dua warna (hitam-putih) saja karena akan lebih mudah untuk dimasukkan.</p>
+      <p>Kode program pada langkah pertama dapat digunakan kembali untuk membaca warna pada gambar hitam-putih yang akan disembunyikan</p>
+      <h2>3. Mengubah LSB gambar berwarna</h2>
+      <p>Setelah mendapatkan warna dari kedua gambar kita hanya perlu mengubah LSB warna dari gambar berwarna sesuai dengan warna pada gambar hitam-putih. Pada bagian berwarna hitam LSB diubah menjadi 0, dan pada bagian berwarna putih LSB diubah menjadi angka 1.</p>
+      <p>Untuk melakukan langkah di atas dapat digunakan kode program Java sebagai berikut
+      <pre><code class="java">public static byte[][][] encodeImage(byte[][][] cover, byte[][][] message) {
+    byte[][][] stego = new byte[cover.length][cover[0].length][3];
+
+    for (int i = 0; i &lt; stego.length; i++) {
+      for (int j = 0; j &lt; stego[j].length; j++) {
+        if (i &lt; message.length && j &lt; message[i].length) {
+          if (message[i][j][0] == 0) {
+            stego[i][j][0] = (byte)((cover[i][j][0] &gt;&gt; 1) &lt;&lt; 1);
+          }
+          else {
+            stego[i][j][0] = (byte)((cover[i][j][0] &gt;&gt; 1) &lt;&lt; 1 + (byte)1);
+          }
+
+          stego[i][j][1] = cover[i][j][1];
+          stego[i][j][2] = cover[i][j][2];
+        } else {
+          stego[i][j][0] = cover[i][j][0];
+          stego[i][j][1] = cover[i][j][1];
+          stego[i][j][2] = cover[i][j][2];
+        }
+      }
+    }
+    return stego;
+  }
+</code></pre>
+      </p>
+      <h2>4. Menyimpan gambar berwarna kembali</h2>
+      <p>Setelah mengubah LSB pada cover-image, gambar kembali di simpan. Kali ini gambar yang sudah disimpan telah menyimpan hidden message.</p>
+      <p>Untuk memperoleh pesan tersebut kembali, diambil LSB dari setiap pixel warna di stego-image. Bit 0 diartikan sebagai warna hitam, dan bit 1 diartikan sebagai warna putih. Kode di bawah dapat digunakan untuk melakukan dekripsi pada pesan
+      <pre><code class="java">
+public static byte[][][] decodeMessage(byte[][][] stego){
+    byte[][][] message = new byte[stego.length][stego[0].length][3];
+
+    for (int i = 0; i &lt; stego.length; i++) {
+      for (int j = 0; j &lt; stego[j].length; j++) {
+        if ((stego[i][j][0] & 0x01) == 0) {
+          message[i][j][0] = -1;
+          message[i][j][1] = -1;
+          message[i][j][2] = -1;
+        } else {
+          message[i][j][0] = 0;
+          message[i][j][1] = 0;
+          message[i][j][2] = 0;
+        }
+      }
+    }
+    return message;
+  }
+</code></pre>
+      </p>
+    </div>
+    <div class="section">
+      Sumber :
+      <nav >
+				<li style="list-style:square">Rinaldi Munir, Slide Kuliah IF4020: Steganografi, 2015</li>
+	      <li style="list-style:square">https://www.cl.cam.ac.uk/teaching/0910/R08/work/essay-at443-steganography.pdf (diakses pada tanggal 24 Mei 2017)</li>
+      </nav>
+    </div>
+  </div>
+</div>
+</body>
+</html>
