@@ -43,8 +43,8 @@ public class PixelReader {
     for (int i = 0; i < stego.length; i++) {
       for (int j = 0; j < stego[j].length; j++) {
         if (i < message.length && j < message[i].length) {
-          System.out.println("ori :" + Integer.toBinaryString(cover[i][j][0]));
-          System.out.println("Msg :" + Integer.toBinaryString(message[i][j][0]));
+          //System.out.println("ori :" + Integer.toBinaryString(cover[i][j][0]));
+          //System.out.println("Msg :" + Integer.toBinaryString(message[i][j][0]));
           if (message[i][j][0] != -1) {
             stego[i][j][0] = (byte)(((byte)(cover[i][j][0] >> 1) << 1));
             stego[i][j][1] = (byte)(((byte)(cover[i][j][1] >> 1) << 1));
@@ -55,7 +55,7 @@ public class PixelReader {
             stego[i][j][1] = (byte)(((byte)(cover[i][j][1] >> 1) << 1) + 1);
             stego[i][j][2] = (byte)(((byte)(cover[i][j][2] >> 1) << 1) + 1);
           }
-          System.out.println("end :" + Integer.toBinaryString(stego[i][j][0]));
+          //System.out.println("end :" + Integer.toBinaryString(stego[i][j][0]));
         }
         else {
           stego[i][j][0] = cover[i][j][0];

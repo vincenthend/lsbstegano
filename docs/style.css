@@ -71,6 +71,12 @@ body {
 	letter-spacing:5px;	
 }
 
+.article-author{
+	font-size: 15px;
+	letter-spacing:3px;
+	text-align:right;
+}
+
 .content{
 	padding-top:10px;
 }
